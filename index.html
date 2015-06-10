@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>Build-it - SQL</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="js/jqwidgets/styles/jqx.base.css" type="text/css" />
+    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="js/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="js/jqwidgets/jqxtabs.js"></script>
+	<script type="text/javascript" src="js/jqwidgets/jqxinput.js"></script>
+	<script type="text/javascript" src="js/jqwidgets/jqxbuttons.js"></script>
+	<script type="text/javascript" src="js/jqwidgets/jqxscrollbar.js"></script>
+	<script type="text/javascript" src="js/jqwidgets/jqxlistbox.js"></script>
+	<script type="text/javascript" src="js/jqwidgets/jqxdropdownlist.js"></script>
+	<script type="text/javascript" src="js/jqwidgets/jqxnumberinput.js"></script>
+	<script type="text/javascript" src="js/jqwidgets/jqxcheckbox.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+	<script type="text/javascript">
+		var fieldsListCounter = 1;
+		var indexListCounter = 1;
+		
+		function addFields(actualIndex) {
+			var fieldTypes = ["Fix text","Index","Only date", "Datetime"];
+
+			var htmlMessage = "";
+			htmlMessage += "<div class=\"row\" id=\"fi" + actualIndex + "\">";
+			htmlMessage += "	<div class=\"fieldrow col-md-12\">";
+			htmlMessage += "		<label for=\"fvIndex" + actualIndex + "\">ID: </label>";
+//			htmlMessage += "		<input type=\"text\" id=\"fvIndex" + actualIndex + "\" value=\""+fieldsListCounter+"\" />"
+			htmlMessage += "		<div id=\"fvIndex" + actualIndex + "\" class=\"selectbox\"></div>"
+			htmlMessage += "		<label for=\"fvFieldName" + actualIndex + "\" class=\"space5\">Field name: </label>";
+			htmlMessage += "		<input type=\"text\" id=\"fvFieldName" + actualIndex + "\" />"
+			htmlMessage += "		<label for=\"fvFieldType" + actualIndex + "\" class=\"space5\">Field type: </label>";
+			htmlMessage += "		<div id=\"fvFieldType" + actualIndex + "\" class=\"selectbox\"></div>";
+			htmlMessage += "		<label for=\"fvFieldValue" + actualIndex + "\" class=\"space5\">Value: </label>";
+			htmlMessage += "		<input type=\"text\" id=\"fvFieldValue" + actualIndex + "\" />";
+			if (fieldsListCounter > 1) {
+				htmlMessage += "		<button id=\"deleteField" + actualIndex + "\">Delete</button>";
+			}
+			htmlMessage += "		<button id=\"addField\">Add</button>";
+			htmlMessage += "	</div>";
+			htmlMessage += "</div>";
+			$("#addField").remove();
+			$("#fieldsList").append(htmlMessage);
+			
+//			$("#fvIndex"+actualIndex).jqxInput({height: 30, width: 40});
+			$("#fvIndex"+actualIndex).jqxNumberInput({ width: '50px', height: '30px',  spinButtons: true, min: 1, max: 999, inputMode: 'simple', decimalDigits: 0, digits: 3 });
+			$("#fvIndex"+actualIndex).jqxNumberInput('setDecimal', fieldsListCounter);
+			$("#fvFieldName"+actualIndex).jqxInput({placeHolder: "Field name", height: 30, width: 200});
+			$("#fvFieldType"+actualIndex).jqxDropDownList({ source: fieldTypes, selectedIndex: 0, width: '150', height: '30'});
+			$("#fvFieldValue"+actualIndex).jqxInput({placeHolder: "Field value", height: 30, width: 200});
+			if (fieldsListCounter > 1) {
+				$("#deleteField"+actualIndex).jqxButton({ template: "danger" });
+				$("#deleteField"+actualIndex).click(function() {
+//					alert("ActualIndex="+actualIndex);
+//					var deletedId = $("[id='fi"+actualIndex+"']").val();
+					$("#fi"+actualIndex).empty().remove();
+					$("#addField").remove();
+					$(".fieldrow:last").append("<button id=\"addField\">Add</button>");
+					$("#addField").jqxButton({ template: "success" });
+					$("#addField").click(function() {
+						addFields(fieldsListCounter);
+					});
+					if ($("#oRenumber").jqxCheckBox('checked') == true) {
+						var id = 1;
+						$("[id^='fvIndex']").each(function(){
+							$(this).jqxNumberInput('setDecimal', id++);
+						});
+					}
+				});
+			}
+			$("#addField").jqxButton({ template: "success" });
+			$("#addField").click(function() {
+				addFields(fieldsListCounter);
+			});
+			
+			fieldsListCounter++;
+		}
+		
+		function addIndex(actualIndex) {
+			var htmlMessage = "";
+			htmlMessage += "<div class=\"row\" id=\"ii" + actualIndex + "\">";
+			htmlMessage += "	<div class=\"indexrow col-md-12\">";
+			htmlMessage += "		<label for=\"ivIndex" + actualIndex + "\">ID: </label>";
+			htmlMessage += "		<div id=\"ivIndex" + actualIndex + "\" class=\"selectbox\">%I" + actualIndex + "</div>"
+			htmlMessage += "		<label for=\"ivIndexStart" + actualIndex + "\" class=\"space10\">Start: </label>";
+			htmlMessage += "		<div id=\"ivIndexStart" + actualIndex + "\" class=\"selectbox\"></div>"
+			htmlMessage += "		<label for=\"ivIndexJump" + actualIndex + "\" class=\"space10\">Jump length: </label>";
+			htmlMessage += "		<div id=\"ivIndexJump" + actualIndex + "\" class=\"selectbox\"></div>"
+			if (indexListCounter > 0) {
+				htmlMessage += "		<div class=\"selectbox space10\"><button id=\"deleteIndex" + actualIndex + "\">Delete</button></div>";
+			}
+			htmlMessage += "	</div>";
+			htmlMessage += "</div>";
+			
+			$("#indexList").append(htmlMessage);
+
+			$("#ivIndexStart"+actualIndex).jqxNumberInput({ width: '120px', height: '30px',  spinButtons: true, inputMode: 'simple', min: -999999999, max: 999999999, decimalDigits: 0, digits: 9 });
+			$("#ivIndexStart"+actualIndex).jqxNumberInput('setDecimal', 1);
+			$("#ivIndexJump"+actualIndex).jqxNumberInput({ width: '120px', height: '30px',  spinButtons: true, inputMode: 'simple', min: -999999999, max: 999999999, decimalDigits: 0, digits: 9 });
+			$("#ivIndexJump"+actualIndex).jqxNumberInput('setDecimal', 1);
+			
+			if (fieldsListCounter > 1) {
+				$("#deleteIndex"+actualIndex).jqxButton({ template: "danger" });
+				$("#deleteIndex"+actualIndex).click(function() {
+					$("#ii"+actualIndex).empty().remove();
+				});
+			}
+
+			indexListCounter++;
+		}
+		
+		$(document).ready(function () {
+			$('#jqxTabs').jqxTabs({ width: 1024, height: 600 });
+/*			$('#jqxTabs').bind('selected', function (event) {
+                var item = event.args.item;
+                var title = $('#jqxTabs').jqxTabs('getTitleAt', item);
+                alert(title);
+            });*/
+			
+			$('#oRenumber').jqxCheckBox({ checked: false});
+			$("#oTableName").jqxInput({placeHolder: "Table name", height: 30, width: 200});
+			$("#oGenItemsNo").jqxInput({placeHolder: "Generated items number", height: 30, width: 200});
+			
+			addFields(fieldsListCounter);
+			
+			$("#addIndex").jqxButton({ template: "success" });
+			$("#addIndex").click(function() {
+				addIndex(indexListCounter);
+			});
+
+		});
+	</script>
+
+	<div id='main'>
+		<h1>Title</h1>
+		<div id='jqxTabs' class="center-block">
+			<ul style='margin-left: 20px;'>
+				<li>Main</li>
+				<li>Indexes</li>
+				<li>Sources</li>
+				<li>Options</li>
+			</ul>
+			<div>
+				<div class="tabcontent">
+					<div class="row">
+						<label for="oTableName" class="col-md-2 center-right">Table name</label>
+						<div class="col-md-2">
+							<input type="text" id="oTableName" />
+						</div>
+						<label for="oGenItemsNo" class="col-md-3 center-right">Generated items number</label>
+						<div class="col-md-5">
+							<input type="text" id="oGenItemsNo" />
+						</div>
+					</div>
+					<hr>
+					<div id="fieldsList">
+					</div>
+				</div>
+			</div>
+			<div>
+				<div class="tabcontent">
+					<div class="row">
+<!--						<div class="fieldrow col-md-11"></div>-->
+						<div class="fieldrow col-md-12 text-right"><button id="addIndex">Add</button></div>
+					</div>
+					<div id="indexList">
+					</div>
+				</div>
+			</div>
+			<div>
+				Content 3
+			</div>
+			<div>
+				<div id="oRenumber"> Renumber the IDs after delete a field </div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
