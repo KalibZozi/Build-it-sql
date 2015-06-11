@@ -17,6 +17,8 @@
 	<script type="text/javascript" src="js/jqwidgets/jqxdropdownlist.js"></script>
 	<script type="text/javascript" src="js/jqwidgets/jqxnumberinput.js"></script>
 	<script type="text/javascript" src="js/jqwidgets/jqxcheckbox.js"></script>
+	<script type="text/javascript" src="js/jqwidgets/jqxeditor.js"></script>
+	<script type="text/javascript" src="js/jqwidgets/jqxdropdownbutton.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/main.css">
@@ -25,6 +27,7 @@
 	<script type="text/javascript">
 		var fieldsListCounter = 1;
 		var indexListCounter = 1;
+		var sourceListCounter = 1;
 		
 		function addFields(actualIndex) {
 			var fieldTypes = ["Fix text","Index","Only date", "Datetime"];
@@ -107,15 +110,52 @@
 			$("#ivIndexJump"+actualIndex).jqxNumberInput({ width: '120px', height: '30px',  spinButtons: true, inputMode: 'simple', min: -999999999, max: 999999999, decimalDigits: 0, digits: 9 });
 			$("#ivIndexJump"+actualIndex).jqxNumberInput('setDecimal', 1);
 			
-			if (fieldsListCounter > 1) {
-				$("#deleteIndex"+actualIndex).jqxButton({ template: "danger" });
-				$("#deleteIndex"+actualIndex).click(function() {
-					$("#ii"+actualIndex).empty().remove();
-				});
-			}
+			$("#deleteIndex"+actualIndex).jqxButton({ template: "danger" });
+			$("#deleteIndex"+actualIndex).click(function() {
+				$("#ii"+actualIndex).empty().remove();
+			});
 
 			indexListCounter++;
 		}
+
+		function addSource(actualIndex) {
+			var htmlMessage = "";
+			htmlMessage += "<div class=\"row\" id=\"si" + actualIndex + "\">";
+			htmlMessage += "	<div class=\"col-md-12 rowspace\">";
+			htmlMessage += "		<label for=\"svIndex" + actualIndex + "\">ID: </label>";
+			htmlMessage += "		<div id=\"svIndex" + actualIndex + "\" class=\"selectbox\">%S" + actualIndex + "</div>"
+			htmlMessage += "		<div class=\"selectbox space10\"><button id=\"emptySource" + actualIndex + "\">Empty</button></div>";
+			if (sourceListCounter > 0) {
+				htmlMessage += "		<div class=\"selectbox space10\"><button id=\"deleteSource" + actualIndex + "\">Delete</button></div>";
+			}
+			htmlMessage += "<br>";
+			htmlMessage += "		<textarea id=\"svText" + actualIndex + "\" class=\"selectbox\"></textarea>"
+			htmlMessage += "	</div>";
+			htmlMessage += "</div>";
+			
+			$("#sourceList").append(htmlMessage);
+
+			$('#svText'+actualIndex).jqxEditor({
+                height: "200px",
+                width: "100%",
+                lineBreak: "br",
+                pasteMode: "text",
+                tools: ""
+            });
+			
+			$("#deleteSource"+actualIndex).jqxButton({ template: "danger" });
+			$("#deleteSource"+actualIndex).click(function() {
+				$("#si"+actualIndex).empty().remove();
+			});
+
+			$("#emptySource"+actualIndex).jqxButton({ template: "warning" });
+			$("#emptySource"+actualIndex).click(function() {
+				$("#svText" + actualIndex).jqxEditor('val', '');
+			});
+
+			sourceListCounter++;
+		}
+
 		
 		$(document).ready(function () {
 			$('#jqxTabs').jqxTabs({ width: 1024, height: 600 });
@@ -136,6 +176,11 @@
 				addIndex(indexListCounter);
 			});
 
+			$("#addSource").jqxButton({ template: "success" });
+			$("#addSource").click(function() {
+				addSource(sourceListCounter);
+			});
+
 		});
 	</script>
 
@@ -146,6 +191,7 @@
 				<li>Main</li>
 				<li>Indexes</li>
 				<li>Sources</li>
+				<li>Variables</li>
 				<li>Options</li>
 			</ul>
 			<div>
@@ -168,15 +214,23 @@
 			<div>
 				<div class="tabcontent">
 					<div class="row">
-<!--						<div class="fieldrow col-md-11"></div>-->
-						<div class="fieldrow col-md-12 text-right"><button id="addIndex">Add</button></div>
+						<div class="col-md-12 text-right"><button id="addIndex">Add</button></div>
 					</div>
 					<div id="indexList">
 					</div>
 				</div>
 			</div>
 			<div>
-				Content 3
+				<div class="tabcontent">
+					<div class="row">
+						<div class="col-md-12 text-right"><button id="addSource">Add</button></div>
+					</div>
+					<div id="sourceList">
+					</div>
+				</div>
+			</div>
+			<div>
+				Variables
 			</div>
 			<div>
 				<div id="oRenumber"> Renumber the IDs after delete a field </div>
