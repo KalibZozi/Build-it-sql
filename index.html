@@ -28,9 +28,28 @@
 		var fieldsListCounter = 1;
 		var indexListCounter = 1;
 		var sourceListCounter = 1;
+		var variableListCounter = 1;
+		
+		function nth_occurrence (string, char, nth) {
+		    var first_index = string.indexOf(char);
+		    var length_up_to_first_index = first_index + 1;
+
+		    if (nth == 1) {
+		        return first_index;
+		    } else {
+		        var string_after_first_occurrence = string.slice(length_up_to_first_index);
+		        var next_occurrence = nth_occurrence(string_after_first_occurrence, char, nth - 1);
+
+		        if (next_occurrence === -1) {
+		            return -1;
+		        } else {
+		            return length_up_to_first_index + next_occurrence;  
+		        }
+		    }
+		}
 		
 		function addFields(actualIndex) {
-			var fieldTypes = ["Fix text","Index","Only date", "Datetime"];
+			var fieldTypes = ["Fix text","Index","Sequence","Only date", "Datetime"];
 
 			var htmlMessage = "";
 			htmlMessage += "<div class=\"row\" id=\"fi" + actualIndex + "\">";
@@ -156,6 +175,78 @@
 			sourceListCounter++;
 		}
 
+		function addVariable(actualIndex) {
+			var variableTypes = ["- SELECT -","From source","Combine two variable"];
+			
+			var htmlMessage = "";
+			htmlMessage += "<div class=\"row\" id=\"vi" + actualIndex + "\">";
+			htmlMessage += "	<div class=\"row\">";
+			htmlMessage += "		<div class=\"col-md-12\">";
+			htmlMessage += "			<label for=\"vvIndex" + actualIndex + "\">ID: </label>";
+			htmlMessage += "			<div id=\"vvIndex" + actualIndex + "\" class=\"selectbox\">%V" + actualIndex + "</div>"
+			htmlMessage += "			<label for=\"vvVariableType" + actualIndex + "\" class=\"space10\">Type: </label>";
+			htmlMessage += "			<div id=\"vvVariableType" + actualIndex + "\" class=\"selectbox\"></div>"
+			htmlMessage += "			<div class=\"selectbox space10\"><button id=\"deleteVariable" + actualIndex + "\">Delete</button></div>";
+			htmlMessage += "		</div>";
+			htmlMessage += "	</div>";
+			htmlMessage += "	<div class=\"row\">";
+			htmlMessage += "		<div class=\"col-md-12\">";
+			htmlMessage += "			<div id=\"vbBox" + actualIndex + "\"></div>";
+			htmlMessage += "		</div>";
+			htmlMessage += "	</div>";
+			htmlMessage += "	<div class=\"row\">";
+			htmlMessage += "		<div class=\"col-md-12\"><hr></div>";
+			htmlMessage += "	</div>";
+			htmlMessage += "</div>";
+			
+			$("#variableList").append(htmlMessage);
+
+			$("#vvVariableType"+actualIndex).jqxDropDownList({ source: variableTypes, selectedIndex: 0, width: '180', height: '30'});
+			$('#vvVariableType'+actualIndex).on('change', function (event)
+					{
+					    var args = event.args;
+					    if (args) {
+						    var index = args.index;
+						    var item = args.item;
+						    var value = item.value;
+							if (value == "From source") {
+								var htmlBox = "";
+								htmlBox += "<label for=\"vvSource" + actualIndex + "\">Type: </label>";
+								htmlBox += "<div id=\"vvSource" + actualIndex + "\" class=\"selectbox space5input\"></div>";
+								
+								htmlBox += "<br>";
+								
+								htmlBox += "<label for=\"vvFromIndex" + actualIndex + "\">From index: </label>";
+								htmlBox += "<input type=\"text\" id=\"vvFromIndex" + actualIndex + "\" class='space5input'>";
+								htmlBox += "<label for=\"vvFromWhat" + actualIndex + "\">From what: </label>";
+								htmlBox += "<input type=\"text\" id=\"vvFromWhat" + actualIndex + "\" class='space5input'>";
+
+								htmlBox += "<label for=\"vvToIndex" + actualIndex + "\" class=\"space5\">To index: </label>";
+								htmlBox += "<input type=\"text\" class=\"space5input\" id=\"vvToIndex" + actualIndex + "\">";
+								htmlBox += "<label for=\"vvToWhat" + actualIndex + "\" class=\"space5\">To what: </label>";
+								htmlBox += "<input type=\"text\" class=\"space5input\" id=\"vvToWhat" + actualIndex + "\">";
+								
+								$("#vbBox"+actualIndex).append(htmlBox);
+								
+								var variableSourceTypes = ["- SELECT -","1","2"];
+								$("#vvSource"+actualIndex).jqxDropDownList({ source: variableSourceTypes, selectedIndex: 0, width: '180', height: '30'});
+								$("#vvFromIndex"+actualIndex).jqxInput({placeHolder: "From index", height: 30, width: 70});
+								$("#vvFromWhat"+actualIndex).jqxInput({placeHolder: "From what", height: 30, width: 200});
+								$("#vvToIndex"+actualIndex).jqxInput({placeHolder: "To index", height: 30, width: 70});
+								$("#vvToWhat"+actualIndex).jqxInput({placeHolder: "To what", height: 30, width: 200});
+							} else if (value == "Combine two variable") {
+								
+							}
+						} 
+					});
+			
+			$("#deleteVariable"+actualIndex).jqxButton({ template: "danger" });
+			$("#deleteVariable"+actualIndex).click(function() {
+				$("#vi"+actualIndex).empty().remove();
+			});
+
+			variableListCounter++;
+		}
 		
 		$(document).ready(function () {
 			$('#jqxTabs').jqxTabs({ width: 1024, height: 600 });
@@ -179,6 +270,11 @@
 			$("#addSource").jqxButton({ template: "success" });
 			$("#addSource").click(function() {
 				addSource(sourceListCounter);
+			});
+
+			$("#addVariable").jqxButton({ template: "success" });
+			$("#addVariable").click(function() {
+				addVariable(variableListCounter);
 			});
 
 		});
@@ -230,7 +326,13 @@
 				</div>
 			</div>
 			<div>
-				Variables
+				<div class="tabcontent">
+					<div class="row">
+						<div class="col-md-12 text-right"><button id="addVariable">Add</button></div>
+					</div>
+					<div id="variableList">
+					</div>
+				</div>
 			</div>
 			<div>
 				<div id="oRenumber"> Renumber the IDs after delete a field </div>
